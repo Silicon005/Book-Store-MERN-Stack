@@ -44,7 +44,7 @@ if ! command -v node &> /dev/null; then
 fi
 
 # Start the application with PM2 using global path
-pm2 start "$APP_DIR/server.js" --name "book-store-mern-stack" --env production
+pm2 start "$APP_DIR/index.js" --name "book-store-mern-stack" --env production
 
 # Ensure PM2 restarts on server reboot
 pm2 startup | bash || echo "PM2 startup script failed, you may need to configure it manually"
