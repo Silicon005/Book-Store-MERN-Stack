@@ -3,6 +3,13 @@ import mongoose from 'mongoose';
 import booksRoute from './routes/booksRoute.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Set up __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
 
 const app = express();
@@ -11,22 +18,26 @@ const app = express();
 app.use(express.json());
 
 // Middleware for handling CORS POLICY
-// Option 1: Allow All Origins with Default of cors(*)
 app.use(cors());
-// Option 2: Allow Custom Origins
-// app.use(
-//   cors({
-//     origin: 'http://localhost:3000',
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     allowedHeaders: ['Content-Type'],
-//   })
-// );
 
-app.get('/', (request, response) => {
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API routes
+app.get('/api', (request, response) => {
   return response.status(234).send('Welcome To MERN Stack Tutorial');
 });
 
 app.use('/books', booksRoute);
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  // Skip API routes
+  if (req.url.startsWith('/books/') || req.url === '/books') {
+    return;
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const PORT = process.env.PORT || 5555;
 
@@ -46,6 +57,7 @@ mongoose
     console.log('App connected to database');
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`App is listening on all interfaces at port: ${PORT}`);
+      console.log(`Frontend should be accessible at http://SERVER_IP:${PORT}`);
     });
   })
   .catch((error) => {
